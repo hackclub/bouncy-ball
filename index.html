@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Bouncing Ball</title>
+  <style>
+    html,
+    body {
+      background: black;
+      color: white;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Circle gets smaller until my computer crashes 💀</h1>
+  <canvas id="canvas"></canvas>
+  <p>Bounces: <span id="bounceCount">0</span></p>
+  <script type="text/javascript">
+    function clearCanvas(ctx, width, height) {
+      ctx.clearRect(0, 0, width, height)
+    }
+
+    function drawCircle(ctx, circle) {
+      ctx.beginPath()
+      ctx.arc(circle.x, circle.y, circle.radius, 0, 2 * Math.PI)
+
+      if (circle.fillColor) {
+        ctx.fillStyle = circle.fillColor
+        ctx.fill()
+      }
+
+      if (circle.strokeColor && circle.lineWidth) {
+        ctx.lineWidth = circle.lineWidth
+        ctx.strokeStyle = circle.strokeColor
+        ctx.stroke()
+      }
+    }
+
+    function isCircleTouchingFromInside(innerCircle, outerCircle) {
+      let dx = innerCircle.x - outerCircle.x
+      let dy = innerCircle.y - outerCircle.y
+
+      let euclidianDistance = Math.sqrt(dx * dx + dy * dy)
+
+      return euclidianDistance + innerCircle.radius >= outerCircle.radius
+    }
+
+    function bounce(innerCircle, outerCircle, ballSpeed) {
+      let dx = innerCircle.x - outerCircle.x
+      let dy = innerCircle.y - outerCircle.y
+
+      let distance = Math.sqrt(dx * dx + dy * dy)
+      dx /= distance
+      dy /= distance
+
+      let angle = Math.atan2(dy, dx)
+
+      let randomAngle = (Math.random() - 0.5) * Math.PI / 4 // random value between -45 and 45 degrees
+
+      angle += randomAngle
+
+      innerCircle.vx = -Math.cos(angle) * ballSpeed
+      innerCircle.vy = -Math.sin(angle) * ballSpeed
+    }
+
+    let c = document.getElementById('canvas')
+    let ctx = c.getContext('2d')
+
+    const fps = 60
+
+    const width = 300
+    const height = 300
+
+    let ballSpeed = 1.5
+
+    // retina scaling
+    let dpr = window.devicePixelRatio || 1
+    c.width = width * dpr
+    c.height = height * dpr
+    c.style.width = `${width}px`
+    c.style.height = `${height}px`
+    ctx.scale(dpr, dpr)
+
+    let outerCircle = {
+      x: width / 2,
+      y: height / 2,
+      vx: 0,
+      vy: 0,
+      radius: width / 4,
+      lineWidth: 5,
+      strokeColor: 'white',
+      fillColor: ''
+    }
+
+    let innerCircle = {
+      x: width / 2,
+      y: height / 2,
+      vx: Math.random(), // randomize to start
+      vy: Math.random(),
+      radius: width / 16,
+      fillColor: 'white'
+    }
+
+    setInterval(() => {
+      clearCanvas(ctx, width, height)
+
+      drawCircle(ctx, outerCircle)
+      drawCircle(ctx, innerCircle)
+
+      innerCircle.y += innerCircle.vy
+      innerCircle.x += innerCircle.vx
+
+      if (isCircleTouchingFromInside(innerCircle, outerCircle)) {
+        bounce(innerCircle, outerCircle, ballSpeed)
+
+        document.getElementById('bounceCount').innerText = parseInt(document.getElementById('bounceCount').innerText) + 1
+      }
+    }, 1000 / fps)
+  </script>
+</body>
+
+</html>
