@@ -16,7 +16,69 @@
   <h1>Circle gets smaller until my computer crashes 💀</h1>
   <canvas id="canvas"></canvas>
   <p>Bounces: <span id="bounceCount">0</span></p>
+  <button onclick="start()">Start Simulation</button>
+  <script src="https://cdn.jsdelivr.net/npm/@tonejs/midi@2.0.28/build/Midi.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/soundfont-player@0.12.0/dist/soundfont-player.min.js"></script>
   <script type="text/javascript">
+    class Song {
+      constructor(midiUrl) {
+        this.midiUrl = midiUrl
+        this.instrument = 'acoustic_grand_piano'
+
+        this.ac = undefined
+        this.instruments = undefined
+        this.notesByTime = undefined
+        this.noteKeysInOrder = undefined
+        this.currentNoteIndex = 0
+      }
+
+      async setup() {
+        const midiData = await Midi.fromUrl(this.midiUrl)
+        this.ac = new AudioContext()
+
+        // array of instruments for each track
+        this.instruments = await Promise.all(midiData.tracks.map(async track =>
+          await Soundfont.instrument(this.ac, this.instrument)
+        ))
+
+        // { 0.25: [ null, note, null, null], 2.25: []... and so on }
+        this.notesByTime = {}
+
+        midiData.tracks.forEach((track, i) => {
+          track.notes.forEach(note => {
+            // round note time to nearest 0.1
+            const time = Math.round(note.time * 10) / 10
+
+            if (!this.notesByTime[time]) {
+              // this makes an array with an entry for each track, presetting all values to null
+              this.notesByTime[time] = new Array(midiData.tracks.length).fill(null)
+            }
+
+            // set the note in the array for the track
+            this.notesByTime[time][i] = note
+          })
+        })
+
+        this.noteKeysInOrder = Object.keys(this.notesByTime).sort((a, b) => a - b)
+      }
+
+      playNote() {
+        let note = this.notesByTime[this.noteKeysInOrder[this.currentNoteIndex]]
+
+        note.forEach((note, i) => {
+          if (note) {
+            this.instruments[i].play(note.name, this.ac.currentTime, { duration: note.duration })
+          }
+        })
+
+        this.currentNoteIndex++
+
+        if (this.currentNoteIndex >= this.noteKeysInOrder.length) {
+          this.currentNoteIndex = 0
+        }
+      }
+    }
+
     function clearCanvas(ctx, width, height) {
       ctx.clearRect(0, 0, width, height)
     }
@@ -110,27 +172,36 @@
       fillColor: 'white'
     }
 
-    setInterval(() => {
-      clearCanvas(ctx, width, height)
+    async function start() {
+      song = new Song('https://cloud-ezyl6ix7b-hack-club-bot.vercel.app/0undertale_-_megalovania.mid')
+      await song.setup()
 
-      drawCircle(ctx, outerCircle)
-      drawCircle(ctx, innerCircle)
+      setInterval(() => {
+        clearCanvas(ctx, width, height)
 
-      innerCircle.vy += gravity
+        drawCircle(ctx, outerCircle)
+        drawCircle(ctx, innerCircle)
 
-      innerCircle.y += innerCircle.vy
-      innerCircle.x += innerCircle.vx
+        innerCircle.vy += gravity
 
-      if (isCircleTouchingFromInside(innerCircle, outerCircle)) {
-        innerCircle.fillColor = randomColor()
-        outerCircle.strokeColor = randomColor()
-        outerCircle.radius *= 0.99
-        bounciness *= 1.01
-        bounce(innerCircle, outerCircle, bounciness)
+        innerCircle.y += innerCircle.vy
+        innerCircle.x += innerCircle.vx
 
-        document.getElementById('bounceCount').innerText = parseInt(document.getElementById('bounceCount').innerText) + 1
-      }
-    }, 1000 / fps)
+        if (isCircleTouchingFromInside(innerCircle, outerCircle)) {
+          console.log(song)
+          song.playNote()
+
+          innerCircle.fillColor = randomColor()
+          outerCircle.strokeColor = randomColor()
+          outerCircle.radius *= 0.99
+          bounciness *= 1.01
+          bounce(innerCircle, outerCircle, bounciness)
+
+          document.getElementById('bounceCount').innerText = parseInt(document.getElementById('bounceCount').innerText) + 1
+        }
+      }, 1000 / fps)
+    }
+
   </script>
 </body>
 
