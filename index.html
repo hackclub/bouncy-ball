@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html onclick="start()">
 
 <head>
   <title>Bouncing Ball</title>
@@ -8,6 +8,13 @@
     body {
       background: black;
       color: white;
+      text-align: center;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 24px;
+    }
+
+    h1 {
+      margin-top: 200px;
     }
   </style>
 </head>
@@ -16,7 +23,6 @@
   <h1>Ball gets bigger until my computer crashes 💀</h1>
   <canvas id="canvas"></canvas>
   <p>Bounces: <span id="bounceCount">0</span></p>
-  <button onclick="start()">Start Simulation</button>
   <script src="https://cdn.jsdelivr.net/npm/@tonejs/midi@2.0.28/build/Midi.js"></script>
   <script type="module">
     import { Soundfont } from 'https://cdn.jsdelivr.net/npm/smplr@0.12.2/+esm'
@@ -110,17 +116,17 @@
     }
 
     function positionInnerCircleAtClosestTouchingPoint(innerCircle, outerCircle) {
-      let dx = innerCircle.x - outerCircle.x;
-      let dy = innerCircle.y - outerCircle.y;
+      let dx = innerCircle.x - outerCircle.x
+      let dy = innerCircle.y - outerCircle.y
 
-      let distance = Math.sqrt(dx * dx + dy * dy);
+      let distance = Math.sqrt(dx * dx + dy * dy)
 
       if (distance > outerCircle.radius - innerCircle.radius) {
-        let directionX = dx / distance;
-        let directionY = dy / distance;
+        let directionX = dx / distance
+        let directionY = dy / distance
 
-        innerCircle.x = outerCircle.x + directionX * (outerCircle.radius - innerCircle.radius);
-        innerCircle.y = outerCircle.y + directionY * (outerCircle.radius - innerCircle.radius);
+        innerCircle.x = outerCircle.x + directionX * (outerCircle.radius - innerCircle.radius)
+        innerCircle.y = outerCircle.y + directionY * (outerCircle.radius - innerCircle.radius)
       }
     }
 
@@ -142,11 +148,11 @@
       innerCircle.vy = -Math.sin(angle) * bounciness
     }
 
+    let hue = 0
+
     function randomColor() {
-      let r = Math.floor(Math.random() * 256)
-      let g = Math.floor(Math.random() * 256)
-      let b = Math.floor(Math.random() * 256)
-      return `rgb(${r},${g},${b})`
+      hue = (hue + 3) % 360
+      return `hsl(${hue}, 100%, 50%)`
     }
 
     let c = document.getElementById('canvas')
@@ -189,7 +195,7 @@
     }
 
     window.start = async function start() {
-      let song = new Song('https://cloud-ezyl6ix7b-hack-club-bot.vercel.app/0undertale_-_megalovania.mid')
+      let song = new Song('https://cloud-lbr61k8wj-hack-club-bot.vercel.app/0never-gonna-give-you-up-3.mid')
       await song.setup()
 
       setInterval(() => {
@@ -198,13 +204,15 @@
         innerCircle.y += innerCircle.vy
         innerCircle.x += innerCircle.vx
 
+        let color = randomColor()
+        innerCircle.fillColor = color
+        outerCircle.strokeColor = color
+
         if (isCircleTouchingFromInside(innerCircle, outerCircle)) {
           positionInnerCircleAtClosestTouchingPoint(innerCircle, outerCircle)
 
           song.playNote()
 
-          innerCircle.fillColor = randomColor()
-          outerCircle.strokeColor = randomColor()
           innerCircle.radius += 1
           bounciness *= 1.01
           bounce(innerCircle, outerCircle, bounciness)
