@@ -109,6 +109,21 @@
       return euclidianDistance + innerCircle.radius >= outerCircle.radius
     }
 
+    function positionInnerCircleAtClosestTouchingPoint(innerCircle, outerCircle) {
+      let dx = innerCircle.x - outerCircle.x;
+      let dy = innerCircle.y - outerCircle.y;
+
+      let distance = Math.sqrt(dx * dx + dy * dy);
+
+      if (distance > outerCircle.radius - innerCircle.radius) {
+        let directionX = dx / distance;
+        let directionY = dy / distance;
+
+        innerCircle.x = outerCircle.x + directionX * (outerCircle.radius - innerCircle.radius);
+        innerCircle.y = outerCircle.y + directionY * (outerCircle.radius - innerCircle.radius);
+      }
+    }
+
     function bounce(innerCircle, outerCircle, bounciness) {
       let dx = innerCircle.x - outerCircle.x
       let dy = innerCircle.y - outerCircle.y
@@ -178,17 +193,14 @@
       await song.setup()
 
       setInterval(() => {
-        clearCanvas(ctx, width, height)
-
-        drawCircle(ctx, outerCircle)
-        drawCircle(ctx, innerCircle)
-
         innerCircle.vy += gravity
 
         innerCircle.y += innerCircle.vy
         innerCircle.x += innerCircle.vx
 
         if (isCircleTouchingFromInside(innerCircle, outerCircle)) {
+          positionInnerCircleAtClosestTouchingPoint(innerCircle, outerCircle)
+
           song.playNote()
 
           innerCircle.fillColor = randomColor()
@@ -199,6 +211,11 @@
 
           document.getElementById('bounceCount').innerText = parseInt(document.getElementById('bounceCount').innerText) + 1
         }
+
+        clearCanvas(ctx, width, height)
+
+        drawCircle(ctx, outerCircle)
+        drawCircle(ctx, innerCircle)
       }, 1000 / fps)
     }
 
