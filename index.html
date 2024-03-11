@@ -13,7 +13,7 @@
 </head>
 
 <body>
-  <h1>Circle gets smaller until my computer crashes 💀</h1>
+  <h1>Ball gets bigger until my computer crashes 💀</h1>
   <canvas id="canvas"></canvas>
   <p>Bounces: <span id="bounceCount">0</span></p>
   <button onclick="start()">Start Simulation</button>
@@ -24,7 +24,7 @@
     class Song {
       constructor(midiUrl) {
         this.midiUrl = midiUrl
-        this.instrument = 'synth_bass_1'
+        this.instrument = 'acoustic_grand_piano'
 
         this.ac = undefined
         this.instruments = undefined
@@ -68,7 +68,7 @@
 
         note.forEach((note, i) => {
           if (note) {
-            this.instruments[i].start({ note: note.name })
+            this.instruments[i].start({ note: note.midi, velocity: note.velocity * 127, time: this.ac.currentTime, duration: note.duration })
           }
         })
 
@@ -139,11 +139,11 @@
 
     const fps = 60
 
-    const width = 300
-    const height = 300
+    const width = 600
+    const height = 600
 
-    let bounciness = 8
-    let gravity = 0.2
+    let bounciness = 30
+    let gravity = 1
 
     // retina scaling
     let dpr = window.devicePixelRatio || 1
@@ -169,12 +169,12 @@
       y: height / 2,
       vx: Math.random(), // randomize to start
       vy: Math.random(),
-      radius: width / 24,
+      radius: width / 32,
       fillColor: 'white'
     }
 
     window.start = async function start() {
-      let song = new Song('https://cloud-247du7f0n-hack-club-bot.vercel.app/0eiffel-65-i-m-blue-20220916155855-nonstop2k.com.mid')
+      let song = new Song('https://cloud-ezyl6ix7b-hack-club-bot.vercel.app/0undertale_-_megalovania.mid')
       await song.setup()
 
       setInterval(() => {
@@ -189,12 +189,11 @@
         innerCircle.x += innerCircle.vx
 
         if (isCircleTouchingFromInside(innerCircle, outerCircle)) {
-          console.log(song)
           song.playNote()
 
           innerCircle.fillColor = randomColor()
           outerCircle.strokeColor = randomColor()
-          outerCircle.radius *= 0.99
+          innerCircle.radius += 1
           bounciness *= 1.01
           bounce(innerCircle, outerCircle, bounciness)
 
