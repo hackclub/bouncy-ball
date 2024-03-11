@@ -18,12 +18,13 @@
   <p>Bounces: <span id="bounceCount">0</span></p>
   <button onclick="start()">Start Simulation</button>
   <script src="https://cdn.jsdelivr.net/npm/@tonejs/midi@2.0.28/build/Midi.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/soundfont-player@0.12.0/dist/soundfont-player.min.js"></script>
-  <script type="text/javascript">
+  <script type="module">
+    import { Soundfont } from 'https://cdn.jsdelivr.net/npm/smplr@0.12.2/+esm'
+
     class Song {
       constructor(midiUrl) {
         this.midiUrl = midiUrl
-        this.instrument = 'acoustic_grand_piano'
+        this.instrument = 'synth_bass_1'
 
         this.ac = undefined
         this.instruments = undefined
@@ -37,9 +38,9 @@
         this.ac = new AudioContext()
 
         // array of instruments for each track
-        this.instruments = await Promise.all(midiData.tracks.map(async track =>
-          await Soundfont.instrument(this.ac, this.instrument)
-        ))
+        let player = new Soundfont(this.ac, { instrument: this.instrument })
+
+        this.instruments = midiData.tracks.map(track => player)
 
         // { 0.25: [ null, note, null, null], 2.25: []... and so on }
         this.notesByTime = {}
@@ -67,7 +68,7 @@
 
         note.forEach((note, i) => {
           if (note) {
-            this.instruments[i].play(note.name, this.ac.currentTime, { duration: note.duration })
+            this.instruments[i].start({ note: note.name })
           }
         })
 
@@ -172,8 +173,8 @@
       fillColor: 'white'
     }
 
-    async function start() {
-      song = new Song('https://cloud-ezyl6ix7b-hack-club-bot.vercel.app/0undertale_-_megalovania.mid')
+    window.start = async function start() {
+      let song = new Song('https://cloud-247du7f0n-hack-club-bot.vercel.app/0eiffel-65-i-m-blue-20220916155855-nonstop2k.com.mid')
       await song.setup()
 
       setInterval(() => {
