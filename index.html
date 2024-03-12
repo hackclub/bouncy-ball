@@ -10,7 +10,7 @@
       color: white;
       text-align: center;
       font-family: 'Courier New', Courier, monospace;
-      font-size: 24px;
+      font-size: 22px;
     }
 
     h1 {
@@ -20,7 +20,7 @@
 </head>
 
 <body>
-  <h1>Ball gets bigger until my computer crashes 💀</h1>
+  <h1>Circle gets smaller until my computer crashes 💀</h1>
   <canvas id="canvas"></canvas>
   <p>Bounces: <span id="bounceCount">0</span></p>
   <script src="https://cdn.jsdelivr.net/npm/@tonejs/midi@2.0.28/build/Midi.js"></script>
@@ -180,7 +180,7 @@
       vx: 0,
       vy: 0,
       radius: width / 2.1,
-      lineWidth: 2,
+      lineWidth: 5,
       strokeColor: 'white',
       fillColor: ''
     }
@@ -191,11 +191,13 @@
       vx: Math.random(), // randomize to start
       vy: Math.random(),
       radius: width / 32,
-      fillColor: 'white'
+      fillColor: 'white',
+      strokeColor: 'black',
+      lineWidth: 2
     }
 
     window.start = async function start() {
-      let song = new Song('https://cloud-lbr61k8wj-hack-club-bot.vercel.app/0never-gonna-give-you-up-3.mid')
+      let song = new Song('https://cloud-lrvp6ww5x-hack-club-bot.vercel.app/0dr_dre_-_still_dre.mid')
       await song.setup()
 
       setInterval(() => {
@@ -213,14 +215,15 @@
 
           song.playNote()
 
+          outerCircle.radius -= 2
           innerCircle.radius += 1
-          bounciness *= 1.01
+          bounciness *= 0.98
           bounce(innerCircle, outerCircle, bounciness)
 
           document.getElementById('bounceCount').innerText = parseInt(document.getElementById('bounceCount').innerText) + 1
         }
 
-        clearCanvas(ctx, width, height)
+        // clearCanvas(ctx, width, height)
 
         drawCircle(ctx, outerCircle)
         drawCircle(ctx, innerCircle)
