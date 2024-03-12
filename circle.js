@@ -58,6 +58,20 @@ export default class Circle {
     return euclidianDistance + this.radius >= circle.radius
   }
 
+  // returns x and y coordinate of the closest point where the x and y intersect
+  // with the circle's edge, including radius
+  closestPoint(x, y) {
+    let dx = x - this.x
+    let dy = y - this.y
+
+    let distance = Math.sqrt(dx * dx + dy * dy)
+
+    let directionX = dx / distance
+    let directionY = dy / distance
+
+    return { x: this.x + directionX * this.radius, y: this.y + directionY * this.radius }
+  }
+
   moveToClosestPointOfCircle(circle) {
     let dx = this.x - circle.x
     let dy = this.y - circle.y
@@ -65,11 +79,10 @@ export default class Circle {
     let distance = Math.sqrt(dx * dx + dy * dy)
 
     if (distance > circle.radius - this.radius) {
-      let directionX = dx / distance
-      let directionY = dy / distance
+      let p = this.closestPoint(circle.x, circle.y)
 
-      this.x = circle.x + directionX * (circle.radius - this.radius)
-      this.y = circle.y + directionY * (circle.radius - this.radius)
+      this.x = p.x
+      this.y = p.y
     }
   }
 }

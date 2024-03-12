@@ -4,3 +4,4 @@ Preuploaded MIDI files:
 - Still Dre: https://cloud-lrvp6ww5x-hack-club-bot.vercel.app/0dr_dre_-_still_dre.mid
 - Sandstorm: https://cloud-6irt2dbfl-hack-club-bot.vercel.app/0darude-sandstorm.mid
 - I'm Blue: https://cloud-247du7f0n-hack-club-bot.vercel.app/0eiffel-65-i-m-blue-20220916155855-nonstop2k.com.mid
+- Welcome To The Black Parade: https://cloud-mkucvezdj-hack-club-bot.vercel.app/0my_chemical_romance_-_welcome_to_the_black_parade.mid.mid

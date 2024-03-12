@@ -84,10 +84,13 @@
       lineWidth: 2
     })
 
+    let bounceCoords = []
+
     window.start = async function start() {
-      let song = new Song('https://cloud-lrvp6ww5x-hack-club-bot.vercel.app/0dr_dre_-_still_dre.mid')
+      let song = new Song('https://cloud-mkucvezdj-hack-club-bot.vercel.app/0my_chemical_romance_-_welcome_to_the_black_parade.mid.mid')
       await song.setup()
 
+      // this code runs 60 times per second (or whatever we set fps to)
       setInterval(() => {
         innerCircle.vy += gravity
 
@@ -102,6 +105,8 @@
           // this makes it so the circle isn't drawn outside of the outerCircle
           innerCircle.moveToClosestPointOfCircle(outerCircle)
 
+          bounceCoords.push(outerCircle.closestPoint(innerCircle.x, innerCircle.y))
+
           song.playNote()
 
           outerCircle.radius -= 2
@@ -113,10 +118,20 @@
           document.getElementById('bounceCount').innerText = parseInt(document.getElementById('bounceCount').innerText) + 1
         }
 
-        // clearCanvas(ctx, width, height)
+        clearCanvas(ctx, width, height)
 
         outerCircle.draw(ctx)
         innerCircle.draw(ctx)
+
+        bounceCoords.forEach(coord => {
+          let c = outerCircle.closestPoint(coord.x, coord.y)
+          ctx.beginPath()
+          ctx.moveTo(c.x, c.y)
+          ctx.lineTo(innerCircle.x, innerCircle.y)
+          ctx.lineWidth = 2
+          ctx.strokeStyle = color
+          ctx.stroke()
+        })
       }, 1000 / fps)
     }
 
