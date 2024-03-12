@@ -25,68 +25,11 @@
   <canvas id="canvas"></canvas>
   <p>Bounces: <span id="bounceCount">0</span></p>
   <script type="module">
+    import Circle from './circle.js'
     import Song from './song.js'
 
     function clearCanvas(ctx, width, height) {
       ctx.clearRect(0, 0, width, height)
-    }
-
-    function drawCircle(ctx, circle) {
-      ctx.beginPath()
-      ctx.arc(circle.x, circle.y, circle.radius, 0, 2 * Math.PI)
-
-      if (circle.fillColor) {
-        ctx.fillStyle = circle.fillColor
-        ctx.fill()
-      }
-
-      if (circle.strokeColor && circle.lineWidth) {
-        ctx.lineWidth = circle.lineWidth
-        ctx.strokeStyle = circle.strokeColor
-        ctx.stroke()
-      }
-    }
-
-    function isCircleTouchingFromInside(innerCircle, outerCircle) {
-      let dx = innerCircle.x - outerCircle.x
-      let dy = innerCircle.y - outerCircle.y
-
-      let euclidianDistance = Math.sqrt(dx * dx + dy * dy)
-
-      return euclidianDistance + innerCircle.radius >= outerCircle.radius
-    }
-
-    function positionInnerCircleAtClosestTouchingPoint(innerCircle, outerCircle) {
-      let dx = innerCircle.x - outerCircle.x
-      let dy = innerCircle.y - outerCircle.y
-
-      let distance = Math.sqrt(dx * dx + dy * dy)
-
-      if (distance > outerCircle.radius - innerCircle.radius) {
-        let directionX = dx / distance
-        let directionY = dy / distance
-
-        innerCircle.x = outerCircle.x + directionX * (outerCircle.radius - innerCircle.radius)
-        innerCircle.y = outerCircle.y + directionY * (outerCircle.radius - innerCircle.radius)
-      }
-    }
-
-    function bounce(innerCircle, outerCircle, bounciness) {
-      let dx = innerCircle.x - outerCircle.x
-      let dy = innerCircle.y - outerCircle.y
-
-      let distance = Math.sqrt(dx * dx + dy * dy)
-      dx /= distance
-      dy /= distance
-
-      let angle = Math.atan2(dy, dx)
-
-      let randomAngle = (Math.random() - 0.5) * Math.PI / 4 // random value between -45 and 45 degrees
-
-      angle += randomAngle
-
-      innerCircle.vx = -Math.cos(angle) * bounciness
-      innerCircle.vy = -Math.sin(angle) * bounciness
     }
 
     let hue = 0
@@ -115,7 +58,7 @@
     c.style.height = `${height}px`
     ctx.scale(dpr, dpr)
 
-    let outerCircle = {
+    let outerCircle = new Circle({
       x: width / 2,
       y: height / 2,
       vx: 0,
@@ -124,9 +67,9 @@
       lineWidth: 5,
       strokeColor: 'white',
       fillColor: ''
-    }
+    })
 
-    let innerCircle = {
+    let innerCircle = new Circle({
       x: width / 2,
       y: height / 2,
       vx: Math.random(), // randomize to start
@@ -135,7 +78,7 @@
       fillColor: 'white',
       strokeColor: 'black',
       lineWidth: 2
-    }
+    })
 
     window.start = async function start() {
       let song = new Song('https://cloud-lrvp6ww5x-hack-club-bot.vercel.app/0dr_dre_-_still_dre.mid')
@@ -144,30 +87,32 @@
       setInterval(() => {
         innerCircle.vy += gravity
 
-        innerCircle.y += innerCircle.vy
-        innerCircle.x += innerCircle.vx
+        innerCircle.update()
+        outerCircle.update()
 
         let color = randomColor()
         innerCircle.fillColor = color
         outerCircle.strokeColor = color
 
-        if (isCircleTouchingFromInside(innerCircle, outerCircle)) {
-          positionInnerCircleAtClosestTouchingPoint(innerCircle, outerCircle)
+        if (innerCircle.isOutsideCircle(outerCircle)) {
+          // this makes it so the circle isn't drawn outside of the outerCircle
+          innerCircle.moveToClosestPointOfCircle(outerCircle)
 
           song.playNote()
 
           outerCircle.radius -= 2
           innerCircle.radius += 1
           bounciness *= 0.98
-          bounce(innerCircle, outerCircle, bounciness)
+
+          innerCircle.bounceAgainstCircle(outerCircle, bounciness)
 
           document.getElementById('bounceCount').innerText = parseInt(document.getElementById('bounceCount').innerText) + 1
         }
 
         // clearCanvas(ctx, width, height)
 
-        drawCircle(ctx, outerCircle)
-        drawCircle(ctx, innerCircle)
+        outerCircle.draw(ctx)
+        innerCircle.draw(ctx)
       }, 1000 / fps)
     }
 
