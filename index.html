@@ -25,6 +25,24 @@
   <canvas id="canvas"></canvas>
   <p>Bounces: <span id="bounceCount">0</span></p>
   <script type="module">
+    // setup
+    let c = document.getElementById('canvas')
+    let ctx = c.getContext('2d')
+
+    // setup - note - we can change these numbers
+    const width = 600
+    const height = 600
+
+    // setup - retina scaling
+    let dpr = window.devicePixelRatio || 1
+    c.width = width * dpr
+    c.height = height * dpr
+    c.style.width = `${width}px`
+    c.style.height = `${height}px`
+    ctx.scale(dpr, dpr)
+
+    // our code begins in earnest
+
     import Circle from './circle.js'
     import Song from './song.js'
 
@@ -39,24 +57,10 @@
       return `hsl(${hue}, 100%, 50%)`
     }
 
-    let c = document.getElementById('canvas')
-    let ctx = c.getContext('2d')
-
     const fps = 60
-
-    const width = 600
-    const height = 600
 
     let bounciness = 30
     let gravity = 1
-
-    // retina scaling
-    let dpr = window.devicePixelRatio || 1
-    c.width = width * dpr
-    c.height = height * dpr
-    c.style.width = `${width}px`
-    c.style.height = `${height}px`
-    ctx.scale(dpr, dpr)
 
     let outerCircle = new Circle({
       x: width / 2,
