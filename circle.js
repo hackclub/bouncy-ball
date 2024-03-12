@@ -41,7 +41,7 @@ export default class Circle {
 
     let angle = Math.atan2(dy, dx)
 
-    let randomAngle = (Math.random() - 0.5) * Math.PI / 12
+    let randomAngle = (Math.random() - 0.5) * Math.PI / 4
 
     angle += randomAngle
 
