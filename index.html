@@ -21,7 +21,7 @@
 </head>
 
 <body>
-  <h1>Circle gets smaller until my computer crashes 💀</h1>
+  <h1>Welcome to the black parade 💀</h1>
   <canvas id="canvas"></canvas>
   <p>Bounces: <span id="bounceCount">0</span></p>
   <script type="module">
@@ -59,8 +59,8 @@
 
     const fps = 60
 
-    let bounciness = 30
-    let gravity = 1
+    let bounciness = 20
+    let gravity = 0.5
 
     let outerCircle = new Circle({
       x: width / 2,
@@ -109,8 +109,8 @@
 
           song.playNote()
 
-          outerCircle.radius -= 2
-          innerCircle.radius += 1
+          outerCircle.radius -= 1.5
+          innerCircle.radius *= 1.1
           bounciness *= 0.98
 
           innerCircle.bounceAgainstCircle(outerCircle, bounciness)
@@ -118,10 +118,7 @@
           document.getElementById('bounceCount').innerText = parseInt(document.getElementById('bounceCount').innerText) + 1
         }
 
-        clearCanvas(ctx, width, height)
-
-        outerCircle.draw(ctx)
-        innerCircle.draw(ctx)
+        // clearCanvas(ctx, width, height)
 
         bounceCoords.forEach(coord => {
           let c = outerCircle.closestPoint(coord.x, coord.y)
@@ -129,9 +126,12 @@
           ctx.moveTo(c.x, c.y)
           ctx.lineTo(innerCircle.x, innerCircle.y)
           ctx.lineWidth = 2
-          ctx.strokeStyle = color
+          ctx.strokeStyle = 'black'
           ctx.stroke()
         })
+
+        innerCircle.draw(ctx)
+        outerCircle.draw(ctx)
       }, 1000 / fps)
     }
 
