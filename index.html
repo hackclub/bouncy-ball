@@ -11,7 +11,7 @@
       color: white;
       text-align: center;
       font-family: 'Courier New', Courier, monospace;
-      font-size: 18px;
+      font-size: 16px;
     }
 
     h1 {
@@ -34,7 +34,7 @@
 </head>
 
 <body>
-  <h1>Welcome to the black parade until my computer crashes 💀</h1>
+  <h1>Add a line every bounce until<br>my computer crashes 💀</h1>
   <canvas id="canvas"></canvas>
   <p>Bounces: <span id="bounceCount">0</span></p>
   <script type="module">
@@ -79,15 +79,15 @@
 
     const fps = 60
 
-    let bounciness = 10
-    let gravity = 0.2
+    let bounciness = 15
+    let gravity = 0.5
 
     let outerCircle = new Circle({
       x: width / 2,
       y: height / 2,
       vx: 0,
       vy: 0,
-      radius: width / 2.1,
+      radius: width / 2.4,
       lineWidth: 5,
       strokeColor: 'white',
       fillColor: ''
@@ -107,7 +107,7 @@
     let bounceCoords = []
 
     window.start = async function start() {
-      let song = new Song('https://cloud-mkucvezdj-hack-club-bot.vercel.app/0my_chemical_romance_-_welcome_to_the_black_parade.mid.mid')
+      let song = new Song('https://cloud-7qo1v7e36-hack-club-bot.vercel.app/0gravity_falls_-_made_me_realize.mid')
       await song.setup()
 
       // this code runs 60 times per second (or whatever we set fps to)
@@ -121,18 +121,30 @@
         innerCircle.fillColor = color
         outerCircle.strokeColor = color
 
+        if (bounceCoords.length > 25) outerCircle.radius += 0.1
+        if (bounceCoords.length > 90) outerCircle.radius += 0.15
+
         if (innerCircle.isOutsideCircle(outerCircle)) {
           bounceCoords.push(outerCircle.closestPoint(innerCircle.x, innerCircle.y))
-
-          song.playNote()
-
-          outerCircle.radius *= 0.99
-          innerCircle.radius *= 1.1
-          bounciness *= 0.98
 
           // this makes it so the circle isn't drawn outside of the outerCircle
           innerCircle.moveToClosestPointOfCircle(outerCircle)
           innerCircle.bounceAgainstCircle(outerCircle, bounciness)
+
+          song.playNote()
+
+          // outerCircle.radius *= 0.99
+          // innerCircle.radius *= 1.1
+          if (bounciness < 70) bounciness *= 1.05
+
+          if (bounceCoords.length > 70) bounciness += 0.75
+          if (bounceCoords.length > 120) bounciness += 1
+          // if (bounceCoords.length > 160) bounciness += 1
+
+
+          gravity *= 0.95
+
+          console.log(bounciness, gravity)
 
           document.getElementById('bounceCount').innerText = parseInt(document.getElementById('bounceCount').innerText) + 1
         }
