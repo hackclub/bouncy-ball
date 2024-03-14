@@ -79,10 +79,13 @@ export default class Circle {
     let distance = Math.sqrt(dx * dx + dy * dy)
 
     if (distance > circle.radius - this.radius) {
-      let p = this.closestPoint(circle.x, circle.y)
+      let intersectionPointOnCircle = circle.closestPoint(this.x, this.y)
 
-      this.x = p.x
-      this.y = p.y
+      // this finds the edge of this (circle) closest to the middle of circle, which is where our new x and y should be set to
+      let newPos = this.closestPoint(intersectionPointOnCircle.x, intersectionPointOnCircle.y)
+
+      this.x = newPos.x
+      this.y = newPos.y
     }
   }
 }
