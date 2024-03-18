@@ -73,19 +73,16 @@ export default class Circle {
   }
 
   moveToClosestPointOfCircle(circle) {
-    let dx = this.x - circle.x
-    let dy = this.y - circle.y
+    let intersectionPointOnCircle = circle.closestPoint(this.x, this.y)
 
-    let distance = Math.sqrt(dx * dx + dy * dy)
+    let dx = circle.x - intersectionPointOnCircle.x
+    let dy = circle.y - intersectionPointOnCircle.y
 
-    if (distance > circle.radius - this.radius) {
-      let intersectionPointOnCircle = circle.closestPoint(this.x, this.y)
+    let length = Math.sqrt(dx * dx + dy * dy)
+    dx /= length
+    dy /= length
 
-      // this finds the edge of this (circle) closest to the middle of circle, which is where our new x and y should be set to
-      let newPos = this.closestPoint(intersectionPointOnCircle.x, intersectionPointOnCircle.y)
-
-      this.x = newPos.x
-      this.y = newPos.y
-    }
+    this.x = intersectionPointOnCircle.x + dx * this.radius
+    this.y = intersectionPointOnCircle.y + dy * this.radius
   }
 }
