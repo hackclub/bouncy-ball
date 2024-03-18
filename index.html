@@ -15,7 +15,10 @@
     }
 
     h1 {
-      margin-top: 200px;
+      margin-top: 180px;
+      width: 80%;
+      margin-left: auto;
+      margin-right: auto;
     }
 
     canvas {
@@ -34,7 +37,7 @@
 </head>
 
 <body>
-  <h1>Add a line every bounce until<br>my computer crashes 💀</h1>
+  <h1>Add a ball every bounce of the 1st ball, but only every 3rd ball can play music and gravity alternates 💀</h1>
   <canvas id="canvas"></canvas>
   <p>Bounces: <span id="bounceCount">0</span></p>
   <script type="module">
@@ -79,7 +82,7 @@
 
     const fps = 60
 
-    let bounciness = 15
+    let bounciness = 17
     let gravity = 0.5
 
     let outerCircle = new Circle({
@@ -104,66 +107,105 @@
       lineWidth: 2
     })
 
+    let balls = []
     let bounceCoords = []
 
+    balls.push(innerCircle)
+
     window.start = async function start() {
-      let song = new Song('https://cloud-7qo1v7e36-hack-club-bot.vercel.app/0gravity_falls_-_made_me_realize.mid')
+      let song = new Song('https://cloud-6irt2dbfl-hack-club-bot.vercel.app/0darude-sandstorm.mid')
       await song.setup()
+      song.playNote()
 
       // this code runs 60 times per second (or whatever we set fps to)
       setInterval(() => {
-        innerCircle.vy += gravity
+        balls.forEach((b, i) => {
+          let rem = i % 2
 
-        innerCircle.update()
+          switch (rem) {
+            case 0:
+              b.vy += gravity
+              break
+            case 1:
+              b.vy -= gravity
+              break
+          }
+        })
+
+        balls.forEach(b => b.update())
         outerCircle.update()
 
         let color = randomColor()
-        innerCircle.fillColor = color
+        balls.forEach((b, i) => {
+          if (i % 3) b.fillColor = color
+        })
         outerCircle.strokeColor = color
 
-        if (bounceCoords.length > 25) outerCircle.radius += 0.1
-        if (bounceCoords.length > 90) outerCircle.radius += 0.15
-
-        if (innerCircle.isOutsideCircle(outerCircle)) {
-          bounceCoords.push(outerCircle.closestPoint(innerCircle.x, innerCircle.y))
-
-          // this makes it so the circle isn't drawn outside of the outerCircle
-          innerCircle.moveToClosestPointOfCircle(outerCircle)
-          innerCircle.bounceAgainstCircle(outerCircle, bounciness)
-
-          song.playNote()
-
-          // outerCircle.radius *= 0.99
-          // innerCircle.radius *= 1.1
-          if (bounciness < 70) bounciness *= 1.05
-
-          if (bounceCoords.length > 70) bounciness += 0.75
-          if (bounceCoords.length > 120) bounciness += 1
-          // if (bounceCoords.length > 160) bounciness += 1
-
-
-          gravity *= 0.95
-
-          console.log(bounciness, gravity)
-
-          document.getElementById('bounceCount').innerText = parseInt(document.getElementById('bounceCount').innerText) + 1
+        if (parseInt(document.getElementById('bounceCount').innerText) > 34) {
+          outerCircle.radius += 0.5
+          bounciness += 0.05
         }
+
+        balls.forEach((b, i) => {
+          if (b.isOutsideCircle(outerCircle)) {
+            bounceCoords.push(outerCircle.closestPoint(b.x, b.y))
+
+            // this makes it so the circle isn't drawn outside of the outerCircle
+            b.moveToClosestPointOfCircle(outerCircle)
+            b.bounceAgainstCircle(outerCircle, bounciness)
+
+            if ((i) % 3 == 0) {
+              song.playNote()
+              document.getElementById('bounceCount').innerText = parseInt(document.getElementById('bounceCount').innerText) + 1
+            }
+
+
+            if (i == 0) balls.push(new Circle({
+              x: outerCircle.x,
+              y: outerCircle.y - outerCircle.radius + b.radius,
+              vx: Math.random(),
+              vy: Math.random(),
+              radius: b.radius,
+              fillColor: b.fillColor,
+              strokeColor: b.strokeColor,
+              lineWidth: b.lineWidth
+            }))
+          }
+
+          balls = balls.filter(b2 => (b.isOutsideCircle(b2) || b == b2))
+        })
+
 
         clearCanvas(ctx, width, height)
 
         let bounceColor = reverseRandomColor()
 
-        bounceCoords.forEach(coord => {
-          let c = outerCircle.closestPoint(coord.x, coord.y)
-          ctx.beginPath()
-          ctx.moveTo(c.x, c.y)
-          ctx.lineTo(innerCircle.x, innerCircle.y)
-          ctx.lineWidth = 1
-          ctx.strokeStyle = bounceColor
-          ctx.stroke()
-        })
+        let whiteBalls = balls.filter((b, i) => (i % 3 == 0))
 
-        innerCircle.draw(ctx)
+        whiteBalls.forEach(b => {
+          whiteBalls.forEach(b2 => {
+            if (b != b2) {
+              let c = b.closestPoint(b2.x, b2.y)
+              ctx.beginPath()
+              ctx.moveTo(c.x, c.y)
+              ctx.lineTo(b2.x, b2.y)
+              ctx.lineWidth = 1
+              ctx.strokeStyle = 'white'
+              ctx.stroke()
+            }
+          })
+        })
+        // bounceCoords.forEach(coord => {
+        //   let c = outerCircle.closestPoint(coord.x, coord.y)
+        //   ctx.beginPath()
+        //   ctx.moveTo(c.x, c.y)
+        //   ctx.lineTo(innerCircle.x, innerCircle.y)
+        //   ctx.lineWidth = 1
+        //   ctx.strokeStyle = bounceColor
+        //   ctx.stroke()
+        // })
+
+        balls.forEach(b => b.draw(ctx))
         outerCircle.draw(ctx)
       }, 1000 / fps)
     }

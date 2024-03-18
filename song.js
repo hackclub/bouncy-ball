@@ -4,7 +4,7 @@ import { Soundfont } from 'https://cdn.jsdelivr.net/npm/smplr@0.12.2/+esm'
 export default class Song {
   constructor(midiUrl) {
     this.midiUrl = midiUrl
-    this.instrument = 'acoustic_grand_piano'
+    this.instrument = 'fx_4_atmosphere'
 
     this.ac = undefined
     this.instruments = undefined
@@ -18,6 +18,7 @@ export default class Song {
     this.ac = new AudioContext()
 
     // array of instruments for each track
+    // let player = new Soundfont(this.ac, { instrument: this.instrument })
     let player = new Soundfont(this.ac, { instrument: this.instrument })
 
     this.instruments = midiData.tracks.map(track => player)
